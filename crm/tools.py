@@ -1,23 +1,12 @@
-"""CRM tool implementations — all 11 async functions backed by aiosqlite.
-
-Each function accepts `db_path` as its first positional argument plus keyword
-arguments matching what the Anthropic tool-use API will pass. Each returns a
-plain dict that is serialised to JSON and fed back to Claude as a tool result.
-"""
-
 from __future__ import annotations
 
-import json
 from datetime import date, timedelta
 from typing import Any
 
 import aiosqlite
 
 
-# ── helpers ───────────────────────────────────────────────────────────────────
-
 def _followup_date(tier: str) -> str:
-    """Return an ISO followup date based on contact tier."""
     days = {"vip": 21, "acquaintance": 42, "broader": 90}.get(tier, 30)
     return (date.today() + timedelta(days=days)).isoformat()
 
@@ -37,8 +26,6 @@ async def _open(db_path: str) -> aiosqlite.Connection:
 def _row_to_dict(row: aiosqlite.Row) -> dict[str, Any]:
     return dict(row)
 
-
-# ── add contact ───────────────────────────────────────────────────────────────
 
 async def crm_add_contact(
     db_path: str,
@@ -81,8 +68,6 @@ async def crm_add_contact(
         return {"success": False, "error": str(exc)}
 
 
-# ── update contact ────────────────────────────────────────────────────────────
-
 async def crm_update_contact(
     db_path: str,
     *,
@@ -103,8 +88,6 @@ async def crm_update_contact(
     except Exception as exc:
         return {"success": False, "error": str(exc)}
 
-
-# ── find contact ──────────────────────────────────────────────────────────────
 
 async def crm_find_contact(db_path: str, *, query: str) -> dict:
     pattern = f"%{query}%"
@@ -138,8 +121,6 @@ async def crm_find_contact(db_path: str, *, query: str) -> dict:
         return {"success": False, "error": str(exc)}
 
 
-# ── list contacts ─────────────────────────────────────────────────────────────
-
 async def crm_list_contacts(
     db_path: str,
     *,
@@ -171,8 +152,6 @@ async def crm_list_contacts(
     except Exception as exc:
         return {"success": False, "error": str(exc)}
 
-
-# ── log interaction ───────────────────────────────────────────────────────────
 
 async def crm_log_interaction(
     db_path: str,
@@ -213,8 +192,6 @@ async def crm_log_interaction(
         return {"success": False, "error": str(exc)}
 
 
-# ── search by industry or company ─────────────────────────────────────────────
-
 async def crm_search_by_industry(
     db_path: str,
     *,
@@ -249,8 +226,6 @@ async def crm_search_by_industry(
         return {"success": False, "error": str(exc)}
 
 
-# ── upcoming follow-ups ───────────────────────────────────────────────────────
-
 async def crm_get_upcoming_followups(db_path: str, *, days: int = 7) -> dict:
     cutoff = (date.today() + timedelta(days=days)).isoformat()
     try:
@@ -270,8 +245,6 @@ async def crm_get_upcoming_followups(db_path: str, *, days: int = 7) -> dict:
     except Exception as exc:
         return {"success": False, "error": str(exc)}
 
-
-# ── upcoming birthdays ────────────────────────────────────────────────────────
 
 async def crm_get_upcoming_birthdays(db_path: str, *, days: int = 14) -> dict:
     today_md = date.today().strftime("%m-%d")
@@ -309,8 +282,6 @@ async def crm_get_upcoming_birthdays(db_path: str, *, days: int = 14) -> dict:
     except Exception as exc:
         return {"success": False, "error": str(exc)}
 
-
-# ── add schema column (dynamic evolution) ────────────────────────────────────
 
 async def crm_add_schema_column(
     db_path: str,
@@ -350,8 +321,6 @@ async def crm_add_schema_column(
     except Exception as exc:
         return {"success": False, "error": str(exc)}
 
-
-# ── tags ──────────────────────────────────────────────────────────────────────
 
 async def crm_add_tag(db_path: str, *, contact_id: int, tag_name: str) -> dict:
     try:
