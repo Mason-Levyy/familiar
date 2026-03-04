@@ -1,5 +1,6 @@
+.env
 .env.local
-.mypycache__/
+.mypy_cache/
 *.pyc
 *.pyd
 *.pyo
@@ -12,3 +13,6 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+db/crm.db
+db/backups/

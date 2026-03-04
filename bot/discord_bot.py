@@ -62,8 +62,6 @@ def _split_response(text: str) -> list[str]:
     return chunks
 
 
-# ── bot setup ─────────────────────────────────────────────────────────────────
-
 intents = discord.Intents.default()
 intents.message_content = True
 
@@ -114,8 +112,6 @@ async def reset_history(ctx: commands.Context) -> None:
     await ctx.send("Conversation history cleared.")
 
 
-# ── morning briefing ──────────────────────────────────────────────────────────
-
 @scheduler.scheduled_job("cron", hour=BRIEFING_HOUR, minute=BRIEFING_MINUTE)
 async def morning_briefing() -> None:
     if BRIEFING_CHANNEL_ID is None:
@@ -140,8 +136,6 @@ async def morning_briefing() -> None:
     for chunk in _split_response(briefing_text):
         await channel.send(chunk)
 
-
-# ── main ──────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     bot.run(DISCORD_BOT_TOKEN, log_handler=None)
