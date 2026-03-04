@@ -28,34 +28,30 @@ SYSTEM_PROMPT: str = _AGENTS_MD.read_text(encoding="utf-8")
 
 _client = anthropic.AsyncAnthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
-# In-memory conversation history keyed by Discord user ID.
 _histories: dict[int, list[dict[str, Any]]] = {}
 
+_TOOL_REGISTRY = {
+    "crm_add_contact": crm_tools.crm_add_contact,
+    "crm_update_contact": crm_tools.crm_update_contact,
+    "crm_find_contact": crm_tools.crm_find_contact,
+    "crm_list_contacts": crm_tools.crm_list_contacts,
+    "crm_log_interaction": crm_tools.crm_log_interaction,
+    "crm_search_by_industry": crm_tools.crm_search_by_industry,
+    "crm_get_upcoming_followups": crm_tools.crm_get_upcoming_followups,
+    "crm_get_upcoming_birthdays": crm_tools.crm_get_upcoming_birthdays,
+    "crm_add_schema_column": crm_tools.crm_add_schema_column,
+    "crm_add_tag": crm_tools.crm_add_tag,
+    "crm_find_by_tag": crm_tools.crm_find_by_tag,
+}
 
-# ── tool registry ─────────────────────────────────────────────────────────────
 
 async def _dispatch_tool(tool_name: str, tool_input: dict[str, Any]) -> dict:
     """Route a tool call to the appropriate crm.tools function."""
-    registry = {
-        "crm_add_contact": crm_tools.crm_add_contact,
-        "crm_update_contact": crm_tools.crm_update_contact,
-        "crm_find_contact": crm_tools.crm_find_contact,
-        "crm_list_contacts": crm_tools.crm_list_contacts,
-        "crm_log_interaction": crm_tools.crm_log_interaction,
-        "crm_search_by_industry": crm_tools.crm_search_by_industry,
-        "crm_get_upcoming_followups": crm_tools.crm_get_upcoming_followups,
-        "crm_get_upcoming_birthdays": crm_tools.crm_get_upcoming_birthdays,
-        "crm_add_schema_column": crm_tools.crm_add_schema_column,
-        "crm_add_tag": crm_tools.crm_add_tag,
-        "crm_find_by_tag": crm_tools.crm_find_by_tag,
-    }
-    handler = registry.get(tool_name)
+    handler = _TOOL_REGISTRY.get(tool_name)
     if handler is None:
         return {"success": False, "error": f"Unknown tool: {tool_name}"}
     return await handler(DB_PATH, **tool_input)
 
-
-# ── tool definitions (sent to Anthropic API) ──────────────────────────────────
 
 TOOL_DEFINITIONS: list[dict[str, Any]] = [
     {
@@ -205,8 +201,6 @@ TOOL_DEFINITIONS: list[dict[str, Any]] = [
 ]
 
 
-# ── main entry point ──────────────────────────────────────────────────────────
-
 def _extract_text(response: anthropic.types.Message) -> str:
     """Pull all TextBlock content from a message into a single string."""
     parts = [
@@ -257,7 +251,6 @@ async def process_message(user_id: int, user_message: str) -> str:
             history.append({"role": "user", "content": tool_results})
             continue
 
-        # Unexpected stop reason — surface it as an error message
         return f"[Unexpected stop_reason: {response.stop_reason}]"
 
 
