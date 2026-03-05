@@ -1,12 +1,17 @@
 .env
 .env.local
+
+# Node.js
+node_modules/
+dist/
+
+# Python (legacy)
 .mypy_cache/
 *.pyc
 *.pyd
 *.pyo
 *.egg-info/
 .eggs/
-
 .venv/
 env/
 venv/
@@ -14,5 +19,6 @@ ENV/
 env.bak/
 venv.bak/
 
+# Database
 db/crm.db
 db/backups/
