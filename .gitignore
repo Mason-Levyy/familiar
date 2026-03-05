@@ -12,12 +12,6 @@ dist/
 *.pyo
 *.egg-info/
 .eggs/
-<<<<<<< HEAD
-=======
-node_modules/
-dist/
-
->>>>>>> 2b67087 (Updated manifest)
 .venv/
 env/
 venv/
