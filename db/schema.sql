@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS schema_meta (
     PRIMARY KEY (table_name, column_name)
 );
 
-INSERT INTO schema_meta (table_name, column_name, column_type, description) VALUES
+INSERT OR IGNORE INTO schema_meta (table_name, column_name, column_type, description) VALUES
     ('contacts', 'name', 'TEXT', 'Full name'),
     ('contacts', 'tier', 'TEXT', 'vip | acquaintance | broader'),
     ('contacts', 'email', 'TEXT', 'Email address'),

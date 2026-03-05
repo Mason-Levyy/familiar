@@ -1,0 +1,14 @@
+{
+  "id": "crm",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "dbPath": {
+        "type": "string",
+        "description": "Absolute path to the SQLite CRM database file"
+      }
+    },
+    "required": ["dbPath"]
+  }
+}
