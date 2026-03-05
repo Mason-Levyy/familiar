@@ -1,5 +1,7 @@
 {
   "id": "crm",
+  "extensions": ["./dist/index.js"],
+  "skills": ["./skill"],
   "configSchema": {
     "type": "object",
     "additionalProperties": false,
