@@ -1,5 +1,4 @@
-import { resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
 import { Type } from "@sinclair/typebox";
 import { addContact } from "./tools/addContact";
 import { updateContact } from "./tools/updateContact";
@@ -30,8 +29,7 @@ function toolResult(data: Record<string, unknown>) {
 }
 
 function registerCrmTools(api: OpenClawApi) {
-  const pluginDir = dirname(fileURLToPath(import.meta.url));
-  const projectRoot = resolve(pluginDir, "..");
+  const projectRoot = resolve(__dirname, "..");
   const databasePath: string =
     api.pluginConfig?.dbPath
     ?? process.env.CRM_DB_PATH
