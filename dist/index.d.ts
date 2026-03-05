@@ -16,5 +16,5 @@ interface OpenClawApi {
         optional?: boolean;
     }): void;
 }
-export default function registerCrmTools(api: OpenClawApi): void;
-export {};
+declare function registerCrmTools(api: OpenClawApi): void;
+export = registerCrmTools;
