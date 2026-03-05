@@ -61,7 +61,7 @@ For complete tool signatures and return types: read `references/tools.md`
 
 **Change the system prompt:** Edit `config/AGENTS.md` and restart the bot (file is read at module import time).
 
-**Add a DB column via migration:** Create `db/migrations/00N_description.sql` with `ALTER TABLE`, execute it, then either update `schema_meta` manually or call `crm_add_schema_column`.
+**Add a DB column via migration:** Create `db/migrations/00N_description.sql` with `ALTER TABLE`, then run `py -3 scripts/migrate.py`. Migration is recorded in the `_migrations` table and will not re-run.
 
 **Reset conversation context for a user:** Call `agent.clear_history(user_id)` in code, or have the user send `!reset` in Discord.
 
@@ -69,3 +69,9 @@ For complete tool signatures and return types: read `references/tools.md`
 ```bash
 pip install -r requirements.txt
 ```
+
+**Deploy to server:**
+```bash
+bash scripts/deploy.sh
+```
+Runs `git pull` → `pip install` → `migrate.py` → `systemctl restart familiar` in one command.

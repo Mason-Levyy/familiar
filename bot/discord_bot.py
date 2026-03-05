@@ -52,7 +52,6 @@ def _split_response(text: str) -> list[str]:
         if len(text) <= DISCORD_MESSAGE_LIMIT:
             chunks.append(text)
             break
-        # Prefer splitting at a newline boundary
         split_at = text.rfind("\n", 0, DISCORD_MESSAGE_LIMIT)
         if split_at == -1:
             split_at = DISCORD_MESSAGE_LIMIT
@@ -84,10 +83,8 @@ async def on_message(message: discord.Message) -> None:
     if message.author.id != ALLOWED_USER_ID:
         return
 
-    # Allow built-in commands (e.g. !reset) to be processed
     await bot.process_commands(message)
 
-    # Ignore messages that were handled as commands
     ctx = await bot.get_context(message)
     if ctx.valid:
         return
