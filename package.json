@@ -1,5 +1,5 @@
 {
-  "name": "openclaw-crm",
+  "name": "crm",
   "version": "1.0.0",
   "description": "Personal CRM plugin for OpenClaw — append-only, self-evolving relationship manager",
   "main": "dist/index.js",
