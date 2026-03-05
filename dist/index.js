@@ -1,6 +1,5 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = registerCrmTools;
+const node_path_1 = require("node:path");
 const typebox_1 = require("@sinclair/typebox");
 const addContact_1 = require("./tools/addContact");
 const updateContact_1 = require("./tools/updateContact");
@@ -17,9 +16,10 @@ function toolResult(data) {
     return { content: [{ type: "text", text: JSON.stringify(data) }] };
 }
 function registerCrmTools(api) {
+    const projectRoot = (0, node_path_1.resolve)(__dirname, "..");
     const databasePath = api.pluginConfig?.dbPath
         ?? process.env.CRM_DB_PATH
-        ?? "./db/crm.db";
+        ?? (0, node_path_1.resolve)(projectRoot, "db", "crm.db");
     api.registerTool({
         name: "crm_add_contact",
         description: "Add a new contact to the CRM database.",
@@ -170,3 +170,4 @@ function registerCrmTools(api) {
         },
     });
 }
+module.exports = registerCrmTools;
