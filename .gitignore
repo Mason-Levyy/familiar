@@ -1,17 +1,30 @@
+.env
+.env.local
+
 # Personal — never commit
 USER.md
 MEMORY.md
 IDENTITY.md
 memory/
 
-# Old-style markdown contacts (data lives in CRM DB)
-crm/
+# Node.js
+node_modules/
+dist/
 
-# Secrets
-.env
-*.env
-*.secret
+# Python (legacy)
+.mypy_cache/
+*.pyc
+*.pyd
+*.pyo
+*.egg-info/
+.eggs/
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
-# OS
-.DS_Store
-Thumbs.db
+# Database
+db/crm.db
+db/backups/
