@@ -11,6 +11,6 @@
         "description": "Absolute path to the SQLite CRM database file"
       }
     },
-    "required": ["dbPath"]
+    "required": []
   }
 }
