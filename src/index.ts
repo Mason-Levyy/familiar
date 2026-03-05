@@ -27,7 +27,7 @@ function toolResult(data: Record<string, unknown>) {
   return { content: [{ type: "text" as const, text: JSON.stringify(data) }] };
 }
 
-export default function registerCrmTools(api: OpenClawApi) {
+function registerCrmTools(api: OpenClawApi) {
   const databasePath: string =
     api.pluginConfig?.dbPath
     ?? process.env.CRM_DB_PATH
@@ -203,3 +203,5 @@ export default function registerCrmTools(api: OpenClawApi) {
     },
   });
 }
+
+export = registerCrmTools;
