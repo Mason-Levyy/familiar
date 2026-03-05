@@ -12,6 +12,7 @@ const getUpcomingBirthdays_1 = require("./tools/getUpcomingBirthdays");
 const addSchemaColumn_1 = require("./tools/addSchemaColumn");
 const addTag_1 = require("./tools/addTag");
 const findByTag_1 = require("./tools/findByTag");
+const proposeSelfImprovement_1 = require("./tools/proposeSelfImprovement");
 function toolResult(data) {
     return { content: [{ type: "text", text: JSON.stringify(data) }] };
 }
@@ -167,6 +168,25 @@ function registerCrmTools(api) {
         }),
         async execute(_id, params) {
             return toolResult((0, findByTag_1.findByTag)(databasePath, params));
+        },
+    });
+    api.registerTool({
+        name: "bot_propose_change",
+        description: "Propose an improvement to this bot's own codebase. Creates a git branch, writes the changed files, commits, pushes, and opens a GitHub PR. Returns the PR URL. Never pushes to main or uses --force.",
+        parameters: typebox_1.Type.Object({
+            branch: typebox_1.Type.String({
+                description: "Feature branch name, e.g. 'feat/add-bulk-tag-tool'. Cannot be main or master.",
+            }),
+            changes: typebox_1.Type.Array(typebox_1.Type.Object({
+                path: typebox_1.Type.String({ description: "Repo-relative file path, e.g. 'src/tools/foo.ts'" }),
+                content: typebox_1.Type.String({ description: "Full file content" }),
+            }), { description: "Files to create or overwrite" }),
+            commit_message: typebox_1.Type.String(),
+            pr_title: typebox_1.Type.String(),
+            pr_body: typebox_1.Type.String({ description: "Markdown body for the PR description" }),
+        }),
+        async execute(_id, params) {
+            return toolResult((0, proposeSelfImprovement_1.proposeSelfImprovement)((0, node_path_1.resolve)(__dirname, ".."), params));
         },
     });
 }

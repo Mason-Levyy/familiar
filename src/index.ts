@@ -11,6 +11,7 @@ import { getUpcomingBirthdays } from "./tools/getUpcomingBirthdays";
 import { addSchemaColumn } from "./tools/addSchemaColumn";
 import { addTag } from "./tools/addTag";
 import { findByTag } from "./tools/findByTag";
+import { proposeSelfImprovement } from "./tools/proposeSelfImprovement";
 
 interface OpenClawApi {
   pluginConfig?: { dbPath?: string };
@@ -202,6 +203,35 @@ function registerCrmTools(api: OpenClawApi) {
     }),
     async execute(_id: string, params: Record<string, unknown>) {
       return toolResult(findByTag(databasePath, params as unknown as Parameters<typeof findByTag>[1]));
+    },
+  });
+
+  api.registerTool({
+    name: "bot_propose_change",
+    description:
+      "Propose an improvement to this bot's own codebase. Creates a git branch, writes the changed files, commits, pushes, and opens a GitHub PR. Returns the PR URL. Never pushes to main or uses --force.",
+    parameters: Type.Object({
+      branch: Type.String({
+        description: "Feature branch name, e.g. 'feat/add-bulk-tag-tool'. Cannot be main or master.",
+      }),
+      changes: Type.Array(
+        Type.Object({
+          path: Type.String({ description: "Repo-relative file path, e.g. 'src/tools/foo.ts'" }),
+          content: Type.String({ description: "Full file content" }),
+        }),
+        { description: "Files to create or overwrite" }
+      ),
+      commit_message: Type.String(),
+      pr_title: Type.String(),
+      pr_body: Type.String({ description: "Markdown body for the PR description" }),
+    }),
+    async execute(_id: string, params: Record<string, unknown>) {
+      return toolResult(
+        proposeSelfImprovement(
+          resolve(__dirname, ".."),
+          params as unknown as Parameters<typeof proposeSelfImprovement>[1]
+        )
+      );
     },
   });
 }
