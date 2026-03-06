@@ -10,6 +10,7 @@ Project initiated. Mason is manager on a 4-week diligence for the Badami Office 
 
 ---
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 ## 2026-03-06 — Day 1 Actions
@@ -28,3 +29,5 @@ Project initiated. Mason is manager on a 4-week diligence for the Badami Office 
 
 ---
 >>>>>>> 3e5035a (log: add Day 1 entries for Badami OEL diligence (2026-03-06))
+=======
+>>>>>>> bf60077 (feat: add Badami OEL diligence project folder and log)
