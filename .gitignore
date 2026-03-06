@@ -1,6 +1,11 @@
 .env
 .env.local
 
+# Personal — never commit
+USER.md
+MEMORY.md
+memory/
+
 # Node.js
 node_modules/
 dist/
