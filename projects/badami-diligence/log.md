@@ -9,9 +9,6 @@
 Project initiated. Mason is manager on a 4-week diligence for the Badami Office of Experiential Learning, a new department out of Leeds School of Business. Goal is to capture notes throughout and compile a best practices guide at the end. Using speech-to-text for note capture, 48-hour check-in cadence.
 
 ---
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 
 ## 2026-03-06 — Day 1 Actions
 
@@ -28,6 +25,21 @@ Project initiated. Mason is manager on a 4-week diligence for the Badami Office 
 **Pending:** Team question submissions (due ~2026-03-07), WhenToMeet responses, first client meeting scheduling
 
 ---
->>>>>>> 3e5035a (log: add Day 1 entries for Badami OEL diligence (2026-03-06))
-=======
->>>>>>> bf60077 (feat: add Badami OEL diligence project folder and log)
+
+## 2026-03-09 — First Client Call + Team Structure
+
+**Tags:** #meeting #decision #process #action
+
+**Client:** Clockin
+
+- Completed first call with client (Clockin)
+- Post-call: organized call notes into a project framework, cross-referenced with SOW and team-submitted questions/points of interest
+- Made key structural decision: divided team of 5 into two sub-teams (2+2+Mason as manager)
+  - **Rationale:** Two teams are easiest to manage; avoids leaving anyone working alone
+- Sent follow-up email to team with assignments and expectations
+- Asked each sub-team to organize their research into presentable slides
+  - **Rationale:** Slides can serve as the final deliverable or a strong baseline, reducing rework later
+
+**Pending:** Sub-team slide decks, continued research
+
+---
