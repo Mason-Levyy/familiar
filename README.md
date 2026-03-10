@@ -25,8 +25,9 @@ familiar/
 │   ├── index.ts              # Registers all 11 tools via api.registerTool()
 │   ├── db.ts                 # Database helpers
 │   └── tools/                # One file per CRM tool (11 total)
-├── skill/
-│   └── SKILL.md              # System prompt (YAML frontmatter + instructions)
+├── skills/
+│   └── crm/
+│       └── SKILL.md          # System prompt (YAML frontmatter + instructions)
 ├── db/
 │   ├── schema.sql            # 5 tables: contacts, interactions, tags, contact_tags, schema_meta
 │   └── migrations/
@@ -91,7 +92,7 @@ npm run build
 ### Initialize Database
 
 ```bash
-node --experimental-sqlite scripts/initDb.ts
+npm run db:init
 ```
 
 ### Install into OpenClaw
@@ -105,7 +106,7 @@ openclaw plugins install /path/to/familiar
 
 # 3. Install the skill (system prompt)
 mkdir -p ~/.openclaw/workspace/skills/crm
-cp skill/SKILL.md ~/.openclaw/workspace/skills/crm/SKILL.md
+cp skills/crm/SKILL.md ~/.openclaw/workspace/skills/crm/SKILL.md
 
 # 4. Configure Discord
 openclaw config set channels.discord.enabled true --json

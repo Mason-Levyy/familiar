@@ -1,10 +1,16 @@
 .env
 .env.local
 
-# Personal — never commit
+# Personal — never commit (see docs/personal-files.md for guidance)
 USER.md
+IDENTITY.md
+HEARTBEAT.md
+TOOLS.md
 MEMORY.md
 memory/
+projects/*
+!projects/example
+!projects/example/**
 
 # Node.js
 node_modules/

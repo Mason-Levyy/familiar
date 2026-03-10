@@ -43,3 +43,17 @@ Tool parameters use `@sinclair/typebox` (`Type.Object`, `Type.String`, etc.) —
 2. Import it in `src/index.ts` and add an `api.registerTool()` call with TypeBox parameter schema
 3. Add the tool name to `skills/crm/SKILL.md` frontmatter `tools:` list
 4. Run `npm run build` to verify
+
+## Personal Files (Never Commit)
+
+This is a public repo. Keep personal context in **gitignored files only**. See `docs/personal-files.md` for the full guide.
+
+Gitignored personal files:
+- `USER.md` — who the user is, preferences, background
+- `IDENTITY.md` — bot name, persona, avatar
+- `HEARTBEAT.md` — active reminders, project check-ins, follow-up nudges
+- `TOOLS.md` — local operational notes (paths, aliases, runtime state)
+- `memory/` — Claude Code persistent memory
+- `projects/` — active project logs and working notes
+
+If you are about to write personal info (real name, specific projects, contact details, school, employer) anywhere, stop and check: is this file gitignored? If not, put it in one of the files above instead.
