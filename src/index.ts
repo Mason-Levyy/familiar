@@ -12,6 +12,13 @@ import { addSchemaColumn } from "./tools/addSchemaColumn";
 import { addTag } from "./tools/addTag";
 import { findByTag } from "./tools/findByTag";
 import { proposeSelfImprovement } from "./tools/proposeSelfImprovement";
+import { createProject } from "./tools/createProject";
+import { listProjects } from "./tools/listProjects";
+import { addTask } from "./tools/addTask";
+import { updateTask } from "./tools/updateTask";
+import { listTasks } from "./tools/listTasks";
+import { logProjectEntry } from "./tools/logProjectEntry";
+import { getProjectSummary } from "./tools/getProjectSummary";
 
 interface OpenClawApi {
   pluginConfig?: { dbPath?: string };
@@ -232,6 +239,144 @@ function registerCrmTools(api: OpenClawApi) {
           params as unknown as Parameters<typeof proposeSelfImprovement>[1]
         )
       );
+    },
+  });
+
+  // ── Project Management Tools ──────────────────────────────
+
+  api.registerTool({
+    name: "pm_create_project",
+    description: "Create a new project to track.",
+    parameters: Type.Object({
+      name: Type.String({ description: "Project display name" }),
+      slug: Type.String({ description: "URL-safe unique identifier, e.g. 'badami-diligence'" }),
+      status: Type.Optional(
+        Type.Union([
+          Type.Literal("active"),
+          Type.Literal("paused"),
+          Type.Literal("completed"),
+          Type.Literal("archived"),
+        ])
+      ),
+      goal: Type.Optional(Type.String({ description: "What the project aims to accomplish" })),
+      role: Type.Optional(Type.String({ description: "Your role on the project" })),
+      organization: Type.Optional(Type.String({ description: "Client or organization" })),
+      start_date: Type.Optional(Type.String({ description: "YYYY-MM-DD — defaults to today" })),
+      end_date: Type.Optional(Type.String({ description: "YYYY-MM-DD" })),
+      checkin_cadence_hours: Type.Optional(Type.Number({ default: 48 })),
+      notes: Type.Optional(Type.String()),
+    }),
+    async execute(_id: string, params: Record<string, unknown>) {
+      return toolResult(createProject(databasePath, params as unknown as Parameters<typeof createProject>[1]));
+    },
+  });
+
+  api.registerTool({
+    name: "pm_list_projects",
+    description: "List projects, optionally filtered by status.",
+    parameters: Type.Object({
+      status: Type.Optional(
+        Type.Union([
+          Type.Literal("active"),
+          Type.Literal("paused"),
+          Type.Literal("completed"),
+          Type.Literal("archived"),
+        ])
+      ),
+      limit: Type.Optional(Type.Number({ default: 20 })),
+    }),
+    async execute(_id: string, params: Record<string, unknown>) {
+      return toolResult(listProjects(databasePath, params as unknown as Parameters<typeof listProjects>[1]));
+    },
+  });
+
+  api.registerTool({
+    name: "pm_add_task",
+    description: "Add a task to a project.",
+    parameters: Type.Object({
+      project_id: Type.Number({ description: "Project ID" }),
+      title: Type.String({ description: "Task description" }),
+      status: Type.Optional(
+        Type.Union([
+          Type.Literal("todo"),
+          Type.Literal("in_progress"),
+          Type.Literal("done"),
+          Type.Literal("blocked"),
+        ])
+      ),
+      priority: Type.Optional(
+        Type.Union([
+          Type.Literal("low"),
+          Type.Literal("medium"),
+          Type.Literal("high"),
+          Type.Literal("urgent"),
+        ])
+      ),
+      due_date: Type.Optional(Type.String({ description: "YYYY-MM-DD" })),
+      notes: Type.Optional(Type.String()),
+    }),
+    async execute(_id: string, params: Record<string, unknown>) {
+      return toolResult(addTask(databasePath, params as unknown as Parameters<typeof addTask>[1]));
+    },
+  });
+
+  api.registerTool({
+    name: "pm_update_task",
+    description: "Update one or more fields on an existing task. Setting status to 'done' auto-fills completed_at.",
+    parameters: Type.Object({
+      id: Type.Number({ description: "Task ID" }),
+      fields: Type.Record(Type.String(), Type.Unknown(), {
+        description: "Dict of field names to new values (status, priority, due_date, notes, title)",
+      }),
+    }),
+    async execute(_id: string, params: Record<string, unknown>) {
+      return toolResult(updateTask(databasePath, params as unknown as Parameters<typeof updateTask>[1]));
+    },
+  });
+
+  api.registerTool({
+    name: "pm_list_tasks",
+    description: "List tasks for a project, optionally filtered by status. Ordered by priority (urgent first).",
+    parameters: Type.Object({
+      project_id: Type.Number({ description: "Project ID" }),
+      status: Type.Optional(
+        Type.Union([
+          Type.Literal("todo"),
+          Type.Literal("in_progress"),
+          Type.Literal("done"),
+          Type.Literal("blocked"),
+        ])
+      ),
+      limit: Type.Optional(Type.Number({ default: 50 })),
+    }),
+    async execute(_id: string, params: Record<string, unknown>) {
+      return toolResult(listTasks(databasePath, params as unknown as Parameters<typeof listTasks>[1]));
+    },
+  });
+
+  api.registerTool({
+    name: "pm_log_entry",
+    description: "Log a dated entry to a project with summary and tags.",
+    parameters: Type.Object({
+      project_id: Type.Number({ description: "Project ID" }),
+      summary: Type.String({ description: "What happened" }),
+      tags: Type.Optional(Type.String({ description: "Comma-separated tags, e.g. 'meeting,decision'" })),
+      date: Type.Optional(Type.String({ description: "YYYY-MM-DD — defaults to today" })),
+    }),
+    async execute(_id: string, params: Record<string, unknown>) {
+      return toolResult(logProjectEntry(databasePath, params as unknown as Parameters<typeof logProjectEntry>[1]));
+    },
+  });
+
+  api.registerTool({
+    name: "pm_get_project_summary",
+    description: "Get a full project summary: details, open tasks, overdue tasks, completed count, and recent log entries.",
+    parameters: Type.Object({
+      project_id: Type.Number({ description: "Project ID" }),
+      log_limit: Type.Optional(Type.Number({ default: 10, description: "Max recent log entries to return" })),
+    }),
+    async execute(_id: string, params: Record<string, unknown>) {
+      return toolResult(getProjectSummary(databasePath, params as unknown as Parameters<typeof getProjectSummary>[1]));
     },
   });
 }

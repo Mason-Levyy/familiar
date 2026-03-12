@@ -13,6 +13,13 @@ const addSchemaColumn_1 = require("./tools/addSchemaColumn");
 const addTag_1 = require("./tools/addTag");
 const findByTag_1 = require("./tools/findByTag");
 const proposeSelfImprovement_1 = require("./tools/proposeSelfImprovement");
+const createProject_1 = require("./tools/createProject");
+const listProjects_1 = require("./tools/listProjects");
+const addTask_1 = require("./tools/addTask");
+const updateTask_1 = require("./tools/updateTask");
+const listTasks_1 = require("./tools/listTasks");
+const logProjectEntry_1 = require("./tools/logProjectEntry");
+const getProjectSummary_1 = require("./tools/getProjectSummary");
 function toolResult(data) {
     return { content: [{ type: "text", text: JSON.stringify(data) }] };
 }
@@ -187,6 +194,126 @@ function registerCrmTools(api) {
         }),
         async execute(_id, params) {
             return toolResult((0, proposeSelfImprovement_1.proposeSelfImprovement)((0, node_path_1.resolve)(__dirname, ".."), params));
+        },
+    });
+    // ── Project Management Tools ──────────────────────────────
+    api.registerTool({
+        name: "pm_create_project",
+        description: "Create a new project to track.",
+        parameters: typebox_1.Type.Object({
+            name: typebox_1.Type.String({ description: "Project display name" }),
+            slug: typebox_1.Type.String({ description: "URL-safe unique identifier, e.g. 'badami-diligence'" }),
+            status: typebox_1.Type.Optional(typebox_1.Type.Union([
+                typebox_1.Type.Literal("active"),
+                typebox_1.Type.Literal("paused"),
+                typebox_1.Type.Literal("completed"),
+                typebox_1.Type.Literal("archived"),
+            ])),
+            goal: typebox_1.Type.Optional(typebox_1.Type.String({ description: "What the project aims to accomplish" })),
+            role: typebox_1.Type.Optional(typebox_1.Type.String({ description: "Your role on the project" })),
+            organization: typebox_1.Type.Optional(typebox_1.Type.String({ description: "Client or organization" })),
+            start_date: typebox_1.Type.Optional(typebox_1.Type.String({ description: "YYYY-MM-DD — defaults to today" })),
+            end_date: typebox_1.Type.Optional(typebox_1.Type.String({ description: "YYYY-MM-DD" })),
+            checkin_cadence_hours: typebox_1.Type.Optional(typebox_1.Type.Number({ default: 48 })),
+            notes: typebox_1.Type.Optional(typebox_1.Type.String()),
+        }),
+        async execute(_id, params) {
+            return toolResult((0, createProject_1.createProject)(databasePath, params));
+        },
+    });
+    api.registerTool({
+        name: "pm_list_projects",
+        description: "List projects, optionally filtered by status.",
+        parameters: typebox_1.Type.Object({
+            status: typebox_1.Type.Optional(typebox_1.Type.Union([
+                typebox_1.Type.Literal("active"),
+                typebox_1.Type.Literal("paused"),
+                typebox_1.Type.Literal("completed"),
+                typebox_1.Type.Literal("archived"),
+            ])),
+            limit: typebox_1.Type.Optional(typebox_1.Type.Number({ default: 20 })),
+        }),
+        async execute(_id, params) {
+            return toolResult((0, listProjects_1.listProjects)(databasePath, params));
+        },
+    });
+    api.registerTool({
+        name: "pm_add_task",
+        description: "Add a task to a project.",
+        parameters: typebox_1.Type.Object({
+            project_id: typebox_1.Type.Number({ description: "Project ID" }),
+            title: typebox_1.Type.String({ description: "Task description" }),
+            status: typebox_1.Type.Optional(typebox_1.Type.Union([
+                typebox_1.Type.Literal("todo"),
+                typebox_1.Type.Literal("in_progress"),
+                typebox_1.Type.Literal("done"),
+                typebox_1.Type.Literal("blocked"),
+            ])),
+            priority: typebox_1.Type.Optional(typebox_1.Type.Union([
+                typebox_1.Type.Literal("low"),
+                typebox_1.Type.Literal("medium"),
+                typebox_1.Type.Literal("high"),
+                typebox_1.Type.Literal("urgent"),
+            ])),
+            due_date: typebox_1.Type.Optional(typebox_1.Type.String({ description: "YYYY-MM-DD" })),
+            notes: typebox_1.Type.Optional(typebox_1.Type.String()),
+        }),
+        async execute(_id, params) {
+            return toolResult((0, addTask_1.addTask)(databasePath, params));
+        },
+    });
+    api.registerTool({
+        name: "pm_update_task",
+        description: "Update one or more fields on an existing task. Setting status to 'done' auto-fills completed_at.",
+        parameters: typebox_1.Type.Object({
+            id: typebox_1.Type.Number({ description: "Task ID" }),
+            fields: typebox_1.Type.Record(typebox_1.Type.String(), typebox_1.Type.Unknown(), {
+                description: "Dict of field names to new values (status, priority, due_date, notes, title)",
+            }),
+        }),
+        async execute(_id, params) {
+            return toolResult((0, updateTask_1.updateTask)(databasePath, params));
+        },
+    });
+    api.registerTool({
+        name: "pm_list_tasks",
+        description: "List tasks for a project, optionally filtered by status. Ordered by priority (urgent first).",
+        parameters: typebox_1.Type.Object({
+            project_id: typebox_1.Type.Number({ description: "Project ID" }),
+            status: typebox_1.Type.Optional(typebox_1.Type.Union([
+                typebox_1.Type.Literal("todo"),
+                typebox_1.Type.Literal("in_progress"),
+                typebox_1.Type.Literal("done"),
+                typebox_1.Type.Literal("blocked"),
+            ])),
+            limit: typebox_1.Type.Optional(typebox_1.Type.Number({ default: 50 })),
+        }),
+        async execute(_id, params) {
+            return toolResult((0, listTasks_1.listTasks)(databasePath, params));
+        },
+    });
+    api.registerTool({
+        name: "pm_log_entry",
+        description: "Log a dated entry to a project with summary and tags.",
+        parameters: typebox_1.Type.Object({
+            project_id: typebox_1.Type.Number({ description: "Project ID" }),
+            summary: typebox_1.Type.String({ description: "What happened" }),
+            tags: typebox_1.Type.Optional(typebox_1.Type.String({ description: "Comma-separated tags, e.g. 'meeting,decision'" })),
+            date: typebox_1.Type.Optional(typebox_1.Type.String({ description: "YYYY-MM-DD — defaults to today" })),
+        }),
+        async execute(_id, params) {
+            return toolResult((0, logProjectEntry_1.logProjectEntry)(databasePath, params));
+        },
+    });
+    api.registerTool({
+        name: "pm_get_project_summary",
+        description: "Get a full project summary: details, open tasks, overdue tasks, completed count, and recent log entries.",
+        parameters: typebox_1.Type.Object({
+            project_id: typebox_1.Type.Number({ description: "Project ID" }),
+            log_limit: typebox_1.Type.Optional(typebox_1.Type.Number({ default: 10, description: "Max recent log entries to return" })),
+        }),
+        async execute(_id, params) {
+            return toolResult((0, getProjectSummary_1.getProjectSummary)(databasePath, params));
         },
     });
 }

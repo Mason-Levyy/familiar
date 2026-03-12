@@ -1,14 +1,14 @@
 {
-  "id": "crm",
+  "id": "familiar",
   "extensions": ["./dist/index.js"],
-  "skills": ["./skill"],
+  "skills": ["./skill", "./skills/project-manager", "./skills/crm" ],
   "configSchema": {
     "type": "object",
     "additionalProperties": false,
     "properties": {
       "dbPath": {
         "type": "string",
-        "description": "Absolute path to the SQLite CRM database file"
+        "description": "Absolute path to the SQLite database file"
       }
     },
     "required": []
