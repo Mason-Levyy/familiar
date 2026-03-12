@@ -23,11 +23,27 @@ const getProjectSummary_1 = require("./tools/getProjectSummary");
 function toolResult(data) {
     return { content: [{ type: "text", text: JSON.stringify(data) }] };
 }
+function wrapExecute(name, fn) {
+    return async (_id, params) => {
+        console.log(`[familiar:${name}] invoked params=${JSON.stringify(params)}`);
+        try {
+            const result = fn(params);
+            console.log(`[familiar:${name}] ok result=${JSON.stringify(result)}`);
+            return toolResult(result);
+        }
+        catch (err) {
+            console.error(`[familiar:${name}] error message=${err.message}`);
+            console.error(`[familiar:${name}] stack=${err.stack}`);
+            throw err;
+        }
+    };
+}
 function registerCrmTools(api) {
     const projectRoot = (0, node_path_1.resolve)(__dirname, "..");
     const databasePath = api.pluginConfig?.dbPath
         ?? process.env.CRM_DB_PATH
-        ?? (0, node_path_1.resolve)(projectRoot, "db", "crm.db");
+        ?? (0, node_path_1.resolve)(projectRoot, "db", "familiar.db");
+    console.log(`[familiar] plugin loaded dbPath=${databasePath}`);
     api.registerTool({
         name: "crm_add_contact",
         description: "Add a new contact to the CRM database.",
@@ -49,9 +65,7 @@ function registerCrmTools(api) {
             notes: typebox_1.Type.Optional(typebox_1.Type.String()),
             next_followup: typebox_1.Type.Optional(typebox_1.Type.String({ description: "YYYY-MM-DD — auto-calculated if omitted" })),
         }),
-        async execute(_id, params) {
-            return toolResult((0, addContact_1.addContact)(databasePath, params));
-        },
+        execute: wrapExecute("crm_add_contact", (params) => (0, addContact_1.addContact)(databasePath, params)),
     });
     api.registerTool({
         name: "crm_update_contact",
@@ -62,9 +76,7 @@ function registerCrmTools(api) {
                 description: "Dict of column names to new values",
             }),
         }),
-        async execute(_id, params) {
-            return toolResult((0, updateContact_1.updateContact)(databasePath, params));
-        },
+        execute: wrapExecute("crm_update_contact", (params) => (0, updateContact_1.updateContact)(databasePath, params)),
     });
     api.registerTool({
         name: "crm_find_contact",
@@ -72,9 +84,7 @@ function registerCrmTools(api) {
         parameters: typebox_1.Type.Object({
             query: typebox_1.Type.String({ description: "Search term" }),
         }),
-        async execute(_id, params) {
-            return toolResult((0, findContact_1.findContact)(databasePath, params));
-        },
+        execute: wrapExecute("crm_find_contact", (params) => (0, findContact_1.findContact)(databasePath, params)),
     });
     api.registerTool({
         name: "crm_list_contacts",
@@ -87,9 +97,7 @@ function registerCrmTools(api) {
             ])),
             limit: typebox_1.Type.Optional(typebox_1.Type.Number({ default: 20 })),
         }),
-        async execute(_id, params) {
-            return toolResult((0, listContacts_1.listContacts)(databasePath, params));
-        },
+        execute: wrapExecute("crm_list_contacts", (params) => (0, listContacts_1.listContacts)(databasePath, params)),
     });
     api.registerTool({
         name: "crm_log_interaction",
@@ -108,9 +116,7 @@ function registerCrmTools(api) {
             summary: typebox_1.Type.String({ description: "What was discussed" }),
             date: typebox_1.Type.Optional(typebox_1.Type.String({ description: "YYYY-MM-DD — defaults to today" })),
         }),
-        async execute(_id, params) {
-            return toolResult((0, logInteraction_1.logInteraction)(databasePath, params));
-        },
+        execute: wrapExecute("crm_log_interaction", (params) => (0, logInteraction_1.logInteraction)(databasePath, params)),
     });
     api.registerTool({
         name: "crm_search_by_industry",
@@ -119,9 +125,7 @@ function registerCrmTools(api) {
             industry: typebox_1.Type.Optional(typebox_1.Type.String()),
             company: typebox_1.Type.Optional(typebox_1.Type.String()),
         }),
-        async execute(_id, params) {
-            return toolResult((0, searchByIndustry_1.searchByIndustry)(databasePath, params));
-        },
+        execute: wrapExecute("crm_search_by_industry", (params) => (0, searchByIndustry_1.searchByIndustry)(databasePath, params)),
     });
     api.registerTool({
         name: "crm_get_upcoming_followups",
@@ -129,9 +133,7 @@ function registerCrmTools(api) {
         parameters: typebox_1.Type.Object({
             days: typebox_1.Type.Optional(typebox_1.Type.Number({ default: 7 })),
         }),
-        async execute(_id, params) {
-            return toolResult((0, getUpcomingFollowups_1.getUpcomingFollowups)(databasePath, params));
-        },
+        execute: wrapExecute("crm_get_upcoming_followups", (params) => (0, getUpcomingFollowups_1.getUpcomingFollowups)(databasePath, params)),
     });
     api.registerTool({
         name: "crm_get_upcoming_birthdays",
@@ -139,9 +141,7 @@ function registerCrmTools(api) {
         parameters: typebox_1.Type.Object({
             days: typebox_1.Type.Optional(typebox_1.Type.Number({ default: 14 })),
         }),
-        async execute(_id, params) {
-            return toolResult((0, getUpcomingBirthdays_1.getUpcomingBirthdays)(databasePath, params));
-        },
+        execute: wrapExecute("crm_get_upcoming_birthdays", (params) => (0, getUpcomingBirthdays_1.getUpcomingBirthdays)(databasePath, params)),
     });
     api.registerTool({
         name: "crm_add_schema_column",
@@ -152,9 +152,7 @@ function registerCrmTools(api) {
             column_type: typebox_1.Type.Optional(typebox_1.Type.String({ default: "TEXT" })),
             description: typebox_1.Type.Optional(typebox_1.Type.String()),
         }),
-        async execute(_id, params) {
-            return toolResult((0, addSchemaColumn_1.addSchemaColumn)(databasePath, params));
-        },
+        execute: wrapExecute("crm_add_schema_column", (params) => (0, addSchemaColumn_1.addSchemaColumn)(databasePath, params)),
     });
     api.registerTool({
         name: "crm_add_tag",
@@ -163,9 +161,7 @@ function registerCrmTools(api) {
             contact_id: typebox_1.Type.Number(),
             tag_name: typebox_1.Type.String(),
         }),
-        async execute(_id, params) {
-            return toolResult((0, addTag_1.addTag)(databasePath, params));
-        },
+        execute: wrapExecute("crm_add_tag", (params) => (0, addTag_1.addTag)(databasePath, params)),
     });
     api.registerTool({
         name: "crm_find_by_tag",
@@ -173,9 +169,7 @@ function registerCrmTools(api) {
         parameters: typebox_1.Type.Object({
             tag_name: typebox_1.Type.String(),
         }),
-        async execute(_id, params) {
-            return toolResult((0, findByTag_1.findByTag)(databasePath, params));
-        },
+        execute: wrapExecute("crm_find_by_tag", (params) => (0, findByTag_1.findByTag)(databasePath, params)),
     });
     api.registerTool({
         name: "bot_propose_change",
@@ -193,7 +187,17 @@ function registerCrmTools(api) {
             pr_body: typebox_1.Type.String({ description: "Markdown body for the PR description" }),
         }),
         async execute(_id, params) {
-            return toolResult((0, proposeSelfImprovement_1.proposeSelfImprovement)((0, node_path_1.resolve)(__dirname, ".."), params));
+            console.log(`[familiar:bot_propose_change] invoked params=${JSON.stringify(params)}`);
+            try {
+                const result = (0, proposeSelfImprovement_1.proposeSelfImprovement)((0, node_path_1.resolve)(__dirname, ".."), params);
+                console.log(`[familiar:bot_propose_change] ok result=${JSON.stringify(result)}`);
+                return toolResult(result);
+            }
+            catch (err) {
+                console.error(`[familiar:bot_propose_change] error message=${err.message}`);
+                console.error(`[familiar:bot_propose_change] stack=${err.stack}`);
+                throw err;
+            }
         },
     });
     // ── Project Management Tools ──────────────────────────────
@@ -217,9 +221,7 @@ function registerCrmTools(api) {
             checkin_cadence_hours: typebox_1.Type.Optional(typebox_1.Type.Number({ default: 48 })),
             notes: typebox_1.Type.Optional(typebox_1.Type.String()),
         }),
-        async execute(_id, params) {
-            return toolResult((0, createProject_1.createProject)(databasePath, params));
-        },
+        execute: wrapExecute("pm_create_project", (params) => (0, createProject_1.createProject)(databasePath, params)),
     });
     api.registerTool({
         name: "pm_list_projects",
@@ -233,9 +235,7 @@ function registerCrmTools(api) {
             ])),
             limit: typebox_1.Type.Optional(typebox_1.Type.Number({ default: 20 })),
         }),
-        async execute(_id, params) {
-            return toolResult((0, listProjects_1.listProjects)(databasePath, params));
-        },
+        execute: wrapExecute("pm_list_projects", (params) => (0, listProjects_1.listProjects)(databasePath, params)),
     });
     api.registerTool({
         name: "pm_add_task",
@@ -258,9 +258,7 @@ function registerCrmTools(api) {
             due_date: typebox_1.Type.Optional(typebox_1.Type.String({ description: "YYYY-MM-DD" })),
             notes: typebox_1.Type.Optional(typebox_1.Type.String()),
         }),
-        async execute(_id, params) {
-            return toolResult((0, addTask_1.addTask)(databasePath, params));
-        },
+        execute: wrapExecute("pm_add_task", (params) => (0, addTask_1.addTask)(databasePath, params)),
     });
     api.registerTool({
         name: "pm_update_task",
@@ -271,9 +269,7 @@ function registerCrmTools(api) {
                 description: "Dict of field names to new values (status, priority, due_date, notes, title)",
             }),
         }),
-        async execute(_id, params) {
-            return toolResult((0, updateTask_1.updateTask)(databasePath, params));
-        },
+        execute: wrapExecute("pm_update_task", (params) => (0, updateTask_1.updateTask)(databasePath, params)),
     });
     api.registerTool({
         name: "pm_list_tasks",
@@ -288,9 +284,7 @@ function registerCrmTools(api) {
             ])),
             limit: typebox_1.Type.Optional(typebox_1.Type.Number({ default: 50 })),
         }),
-        async execute(_id, params) {
-            return toolResult((0, listTasks_1.listTasks)(databasePath, params));
-        },
+        execute: wrapExecute("pm_list_tasks", (params) => (0, listTasks_1.listTasks)(databasePath, params)),
     });
     api.registerTool({
         name: "pm_log_entry",
@@ -301,9 +295,7 @@ function registerCrmTools(api) {
             tags: typebox_1.Type.Optional(typebox_1.Type.String({ description: "Comma-separated tags, e.g. 'meeting,decision'" })),
             date: typebox_1.Type.Optional(typebox_1.Type.String({ description: "YYYY-MM-DD — defaults to today" })),
         }),
-        async execute(_id, params) {
-            return toolResult((0, logProjectEntry_1.logProjectEntry)(databasePath, params));
-        },
+        execute: wrapExecute("pm_log_entry", (params) => (0, logProjectEntry_1.logProjectEntry)(databasePath, params)),
     });
     api.registerTool({
         name: "pm_get_project_summary",
@@ -312,9 +304,7 @@ function registerCrmTools(api) {
             project_id: typebox_1.Type.Number({ description: "Project ID" }),
             log_limit: typebox_1.Type.Optional(typebox_1.Type.Number({ default: 10, description: "Max recent log entries to return" })),
         }),
-        async execute(_id, params) {
-            return toolResult((0, getProjectSummary_1.getProjectSummary)(databasePath, params));
-        },
+        execute: wrapExecute("pm_get_project_summary", (params) => (0, getProjectSummary_1.getProjectSummary)(databasePath, params)),
     });
 }
 module.exports = registerCrmTools;
