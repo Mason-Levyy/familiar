@@ -1,5 +1,6 @@
 .env
 .env.local
+.claude/settings.local.json
 
 # Personal — never commit (see docs/personal-files.md for guidance)
 USER.md
