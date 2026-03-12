@@ -4,7 +4,7 @@
 #   table — contacts | interactions | tags | contact_tags | schema_meta  (default: contacts)
 #   limit — number of rows (default: 5)
 
-DB="$HOME/familiar/db/crm.db"
+DB="$HOME/familiar/db/familiar.db"
 TABLE="${1:-contacts}"
 LIMIT="${2:-5}"
 
