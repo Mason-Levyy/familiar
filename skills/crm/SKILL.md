@@ -1,19 +1,7 @@
 ---
 name: crm
 description: Personal CRM for managing contacts across three relationship tiers
-tools:
-  - crm_add_contact
-  - crm_update_contact
-  - crm_find_contact
-  - crm_list_contacts
-  - crm_log_interaction
-  - crm_search_by_industry
-  - crm_get_upcoming_followups
-  - crm_get_upcoming_birthdays
-  - crm_add_schema_column
-  - crm_add_tag
-  - crm_find_by_tag
-  - bot_propose_change
+tools: [crm_add_contact, crm_update_contact, crm_find_contact, crm_list_contacts, crm_log_interaction, crm_search_by_industry, crm_get_upcoming_followups, crm_get_upcoming_birthdays, crm_add_schema_column, crm_add_tag, crm_find_by_tag, bot_propose_change]
 ---
 
 # Mason's Personal CRM Agent
