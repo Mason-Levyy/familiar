@@ -1,73 +1,50 @@
-# Familiar — Personal CRM for OpenClaw
+# Familiar
 
-An append-only, self-evolving personal CRM that runs as an [OpenClaw](https://openclaw.ai/) plugin. Manage contacts across three relationship tiers, log interactions, track birthdays and follow-ups — all through natural conversation via Discord.
+**Familiar** is an agentic AI assistant that helps you stay on top of your professional network and manage your projects — all through natural conversation.
 
-**Stack:** TypeScript · Node.js ≥22 (`node:sqlite`) · OpenClaw · SQLite · Discord
-
----
-
-## How It Works
-
-You DM your Discord bot → OpenClaw routes it to Claude → Claude calls CRM tools against SQLite → response sent back to Discord.
-
-The schema evolves automatically. Mention a new type of information ("his dog's name is Rex") and the agent creates a new column and stores the value — no migration scripts, no restarts.
+No forms. No dashboards. Just chat.
 
 ---
 
-## Project Structure
+## What Familiar Does
 
-```
-familiar/
-├── package.json              # Node deps + OpenClaw plugin entry
-├── tsconfig.json             # TypeScript config
-├── openclaw.plugin.json      # Plugin manifest
-├── src/
-│   ├── index.ts              # Registers all 11 tools via api.registerTool()
-│   ├── db.ts                 # Database helpers
-│   └── tools/                # One file per CRM tool (11 total)
-├── skills/
-│   └── crm/
-│       └── SKILL.md          # System prompt (YAML frontmatter + instructions)
-├── db/
-│   ├── schema.sql            # 5 tables: contacts, interactions, tags, contact_tags, schema_meta
-│   └── migrations/
-├── scripts/
-│   ├── initDb.ts             # DB bootstrap
-│   └── backup_db.sh          # SQLite backup script
-└── docs/
-```
+Familiar lives inside [OpenClaw](https://openclaw.ai/) and connects to you through Discord. You talk to it like a person, and it handles the tracking for you.
+
+**Network Management**
+- Add and update contacts through natural conversation
+- Log interactions (calls, coffee, emails) and auto-reset follow-up timers
+- Get notified when someone is overdue for a check-in
+- Track birthdays, industries, companies, and custom fields you define on the fly
+- Tag and search contacts any way you want
+
+**Project & Task Awareness**
+- Link contacts to projects and ongoing work
+- Track relationship context that matters to your goals
+- Keep a living record of who knows what, and who you should be talking to
+
+**Self-Evolving Memory**
+- Mention a new piece of information ("his dog's name is Rex") and Familiar creates a new field and stores it — no config, no restarts
+- Your data model grows with your life
 
 ---
 
-## CRM Tools (11)
+## Key Features
 
-| Tool | Description |
+| Feature | Description |
 |---|---|
-| `crm_add_contact` | Add a contact with tier, details, auto-calculated follow-up |
-| `crm_update_contact` | Update any fields on a contact |
-| `crm_find_contact` | Search by name/company/notes, returns recent interactions |
-| `crm_list_contacts` | List all or filter by tier |
-| `crm_log_interaction` | Record a touchpoint, reset follow-up timer |
-| `crm_search_by_industry` | Find contacts by industry or company |
-| `crm_get_upcoming_followups` | Contacts due for check-in within N days |
-| `crm_get_upcoming_birthdays` | Birthdays in the next N days (year-boundary safe) |
-| `crm_add_schema_column` | Dynamically add a column to track new data |
-| `crm_add_tag` | Tag a contact with a label |
-| `crm_find_by_tag` | Find all contacts with a given tag |
-
-No delete tools exist. The CRM is append-only by design.
+| Natural language interface | Talk to Familiar like a person — no commands to memorize |
+| Append-only storage | Data is never deleted — your history is always intact |
+| Auto follow-up scheduling | Every interaction resets a follow-up timer based on relationship tier |
+| Birthday tracking | Never miss a birthday, with year-boundary-safe date math |
+| Dynamic schema | Add custom fields mid-conversation — the database evolves automatically |
+| Local-first | SQLite, no cloud, no subscriptions |
+| Discord-native | Accessible anywhere you have Discord |
 
 ---
 
-## Contact Tiers
+## Stack
 
-| Tier | Follow-up Cadence | Use Case |
-|---|---|---|
-| **vip** | Every 3 weeks | Close friends, family |
-| **acquaintance** | Every 6 weeks | Genuine connections |
-| **broader** | Every 3 months | Professional/networking |
-
-Follow-up dates auto-reset when you log an interaction.
+**TypeScript · Node.js ≥22 · OpenClaw · SQLite · Discord**
 
 ---
 
@@ -76,11 +53,14 @@ Follow-up dates auto-reset when you log an interaction.
 ### Prerequisites
 
 - Node.js ≥ 22
-- [OpenClaw](https://openclaw.ai/) installed (`curl -fsSL https://openclaw.ai/install.sh | bash`)
-- A Discord bot token ([Developer Portal](https://discord.com/developers/applications))
+- [OpenClaw](https://openclaw.ai/) installed:
+  ```bash
+  curl -fsSL https://openclaw.ai/install.sh | bash
+  ```
+- A Discord bot token — create one at the [Discord Developer Portal](https://discord.com/developers/applications)
 - An Anthropic API key (configured during `openclaw onboard`)
 
-### Build
+### Install
 
 ```bash
 git clone https://github.com/Mason-Levyy/familiar
@@ -89,31 +69,33 @@ npm install
 npm run build
 ```
 
-### Initialize Database
+### Initialize the Database
 
 ```bash
 npm run db:init
 ```
 
-### Install into OpenClaw
+### Connect to OpenClaw
 
 ```bash
-# 1. Run the onboarding wizard (sets up API keys, daemon)
+# 1. Run the onboarding wizard (sets up API keys and the background daemon)
 openclaw onboard --install-daemon
 
-# 2. Load the CRM plugin
+# 2. Load the Familiar plugin
 openclaw plugins install /path/to/familiar
 
-# 3. Install the skill (system prompt)
+# 3. Install the CRM skill (system prompt)
 mkdir -p ~/.openclaw/workspace/skills/crm
 cp skills/crm/SKILL.md ~/.openclaw/workspace/skills/crm/SKILL.md
 
-# 4. Configure Discord
+# 4. Connect Discord
 openclaw config set channels.discord.enabled true --json
 openclaw config set channels.discord.token '"YOUR_BOT_TOKEN"' --json
 ```
 
-Then edit `~/.openclaw/config.json5` to restrict access:
+### Lock Down Access
+
+Edit `~/.openclaw/config.json5` to restrict Familiar to your Discord account only:
 
 ```json5
 {
@@ -127,40 +109,13 @@ Then edit `~/.openclaw/config.json5` to restrict access:
 }
 ```
 
-### Start
+### Run
 
 ```bash
 openclaw gateway
 ```
 
----
-
-## Usage Examples
-
-```
-You: Add Sarah Chen, VIP, met at Leeds alumni event. Product manager at Salesforce in Denver.
-     Birthday is March 15.
-
-Bot: Added Sarah Chen (VIP)
-     Company: Salesforce | Role: Product Manager | Location: Denver
-     Birthday: March 15 | Next follow-up: March 23
-
-You: Log that I grabbed coffee with Marcus — we talked about his job search in consulting.
-
-Bot: Logged interaction with Marcus (Acquaintance)
-     Type: Coffee | Next follow-up: April 13
-
-You: His dog's name is Rex.
-
-Bot: Added column 'dog_name' to contacts.
-     Updated Marcus — dog_name: Rex
-
-You: Who should I check in with this week?
-
-Bot: Follow-ups due in the next 7 days:
-     - Sarah Chen (VIP) — due March 5 — met at Leeds alumni event
-     - Jake Torres (VIP) — due March 7 — last: coffee in January
-```
+Familiar is now live. DM your Discord bot to start.
 
 ---
 
@@ -170,17 +125,17 @@ Bot: Follow-ups due in the next 7 days:
 # Manual backup
 bash scripts/backup_db.sh
 
-# Cron (daily at 3 AM)
+# Schedule a daily backup at 3 AM via cron
 crontab -e
-# 0 3 * * * bash /path/to/familiar/scripts/backup_db.sh
+# Add: 0 3 * * * bash /path/to/familiar/scripts/backup_db.sh
 ```
 
 ---
 
 ## Security
 
-- Discord access restricted to a single user via `allowFrom` allowlist
-- No delete operations exposed — data is append-only
-- SQLite is local-only — no cloud exposure
-- `.env` is gitignored — secrets live in OpenClaw gateway config
-- Run `openclaw doctor` to check for misconfigurations
+- **Single-user access** — Discord allowlist restricts access to one user
+- **Append-only** — no delete operations; your data is always recoverable
+- **Local-only** — SQLite stays on your machine, no cloud exposure
+- **Secrets stay out of git** — `.env` is gitignored; credentials live in OpenClaw config
+- Run `openclaw doctor` to diagnose any configuration issues
