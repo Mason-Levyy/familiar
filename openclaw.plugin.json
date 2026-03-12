@@ -1,7 +1,7 @@
 {
   "id": "familiar",
   "extensions": ["./dist/index.js"],
-  "skills": ["./skill", "./skills/project-manager", "./skills/crm" ],
+  "skills": ["./skills/project-manager", "./skills/crm"],
   "configSchema": {
     "type": "object",
     "additionalProperties": false,
