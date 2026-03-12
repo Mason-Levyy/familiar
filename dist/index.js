@@ -27,7 +27,7 @@ function registerCrmTools(api) {
     const projectRoot = (0, node_path_1.resolve)(__dirname, "..");
     const databasePath = api.pluginConfig?.dbPath
         ?? process.env.CRM_DB_PATH
-        ?? (0, node_path_1.resolve)(projectRoot, "db", "crm.db");
+        ?? (0, node_path_1.resolve)(projectRoot, "db", "familiar.db");
     api.registerTool({
         name: "crm_add_contact",
         description: "Add a new contact to the CRM database.",
