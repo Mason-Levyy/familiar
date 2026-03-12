@@ -25,6 +25,7 @@ pip install -r requirements.txt
 5. Copy the **Token** — you'll need it for `.env`
 
 To invite the bot to your server:
+
 - Go to **OAuth2 → URL Generator**
 - Scopes: `bot`
 - Bot permissions: `Send Messages`, `Read Message History`
@@ -57,7 +58,7 @@ Open `.env` and fill in:
 DISCORD_BOT_TOKEN=your_bot_token_here
 DISCORD_ALLOWED_USER_ID=your_numeric_user_id
 ANTHROPIC_API_KEY=sk-ant-...
-DB_PATH=./db/crm.db
+DB_PATH=./db/familiar.db
 DISCORD_BRIEFING_CHANNEL_ID=channel_id_for_morning_briefing
 BRIEFING_HOUR=8
 BRIEFING_MINUTE=0
@@ -73,8 +74,9 @@ py -3 scripts/init_db.py
 ```
 
 Expected output:
+
 ```
-Database initialized at db/crm.db
+Database initialized at db/familiar.db
 ```
 
 ---
@@ -86,6 +88,7 @@ py -3 -m bot.discord_bot
 ```
 
 The bot will log in and start listening. You should see:
+
 ```
 2026-03-03 08:00:00  INFO      familiar — Logged in as familiar#1234 (id=123456789)
 2026-03-03 08:00:00  INFO      familiar — Scheduler started — briefing at 08:00
@@ -112,6 +115,7 @@ For a proper Windows service, use [NSSM](https://nssm.cc/) or a Task Scheduler t
 ## 9. Set Up Automatic Backups (Optional)
 
 On Linux / WSL:
+
 ```bash
 chmod +x scripts/backup_db.sh
 crontab -e

@@ -17,7 +17,7 @@ npm run db:init        # tsx scripts/initDb.ts (bootstraps SQLite from db/schema
 
 Requires **Node.js >= 22** (uses built-in `node:sqlite`). Run with `--experimental-sqlite` flag when executing scripts directly.
 
-Database path resolution order: `pluginConfig.dbPath` → `CRM_DB_PATH` env var → `db/crm.db`.
+Database path resolution order: `pluginConfig.dbPath` → `CRM_DB_PATH` env var → `db/familiar.db`.
 
 ## Architecture
 
@@ -49,6 +49,7 @@ Tool parameters use `@sinclair/typebox` (`Type.Object`, `Type.String`, etc.) —
 This is a public repo. Keep personal context in **gitignored files only**. See `docs/personal-files.md` for the full guide.
 
 Gitignored personal files:
+
 - `USER.md` — who the user is, preferences, background
 - `IDENTITY.md` — bot name, persona, avatar
 - `HEARTBEAT.md` — active reminders, project check-ins, follow-up nudges

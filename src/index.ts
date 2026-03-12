@@ -41,7 +41,7 @@ function registerCrmTools(api: OpenClawApi) {
   const databasePath: string =
     api.pluginConfig?.dbPath
     ?? process.env.CRM_DB_PATH
-    ?? resolve(projectRoot, "db", "crm.db");
+    ?? resolve(projectRoot, "db", "familiar.db");
 
   api.registerTool({
     name: "crm_add_contact",

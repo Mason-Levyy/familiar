@@ -7,7 +7,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
-DB_PATH="${DB_PATH:-$REPO_ROOT/db/crm.db}"
+DB_PATH="${DB_PATH:-$REPO_ROOT/db/familiar.db}"
 BACKUP_DIR="$REPO_ROOT/db/backups"
 DATE=$(date +%Y-%m-%d)
 

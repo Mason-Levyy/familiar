@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(scriptDir, "..");
 const schemaPath = resolve(projectRoot, "db", "schema.sql");
-const databasePath = process.env.CRM_DB_PATH ?? resolve(projectRoot, "db", "crm.db");
+const databasePath = process.env.CRM_DB_PATH ?? resolve(projectRoot, "db", "familiar.db");
 
 const schemaSql = readFileSync(schemaPath, "utf-8");
 
