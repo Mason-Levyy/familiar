@@ -36,12 +36,32 @@ function toolResult(data: Record<string, unknown>) {
   return { content: [{ type: "text" as const, text: JSON.stringify(data) }] };
 }
 
+function wrapExecute<P>(
+  name: string,
+  fn: (params: P) => Record<string, unknown>
+): (id: string, params: Record<string, unknown>) => Promise<ReturnType<typeof toolResult>> {
+  return async (_id, params) => {
+    console.log(`[familiar:${name}] invoked params=${JSON.stringify(params)}`);
+    try {
+      const result = fn(params as P);
+      console.log(`[familiar:${name}] ok result=${JSON.stringify(result)}`);
+      return toolResult(result);
+    } catch (err) {
+      console.error(`[familiar:${name}] error message=${(err as Error).message}`);
+      console.error(`[familiar:${name}] stack=${(err as Error).stack}`);
+      throw err;
+    }
+  };
+}
+
 function registerCrmTools(api: OpenClawApi) {
   const projectRoot = resolve(__dirname, "..");
   const databasePath: string =
     api.pluginConfig?.dbPath
     ?? process.env.CRM_DB_PATH
     ?? resolve(projectRoot, "db", "familiar.db");
+
+  console.log(`[familiar] plugin loaded dbPath=${databasePath}`);
 
   api.registerTool({
     name: "crm_add_contact",
@@ -66,9 +86,7 @@ function registerCrmTools(api: OpenClawApi) {
         Type.String({ description: "YYYY-MM-DD — auto-calculated if omitted" })
       ),
     }),
-    async execute(_id: string, params: Record<string, unknown>) {
-      return toolResult(addContact(databasePath, params as unknown as Parameters<typeof addContact>[1]));
-    },
+    execute: wrapExecute("crm_add_contact", (params: Parameters<typeof addContact>[1]) => addContact(databasePath, params)),
   });
 
   api.registerTool({
@@ -80,9 +98,7 @@ function registerCrmTools(api: OpenClawApi) {
         description: "Dict of column names to new values",
       }),
     }),
-    async execute(_id: string, params: Record<string, unknown>) {
-      return toolResult(updateContact(databasePath, params as unknown as Parameters<typeof updateContact>[1]));
-    },
+    execute: wrapExecute("crm_update_contact", (params: Parameters<typeof updateContact>[1]) => updateContact(databasePath, params)),
   });
 
   api.registerTool({
@@ -92,9 +108,7 @@ function registerCrmTools(api: OpenClawApi) {
     parameters: Type.Object({
       query: Type.String({ description: "Search term" }),
     }),
-    async execute(_id: string, params: Record<string, unknown>) {
-      return toolResult(findContact(databasePath, params as unknown as Parameters<typeof findContact>[1]));
-    },
+    execute: wrapExecute("crm_find_contact", (params: Parameters<typeof findContact>[1]) => findContact(databasePath, params)),
   });
 
   api.registerTool({
@@ -110,9 +124,7 @@ function registerCrmTools(api: OpenClawApi) {
       ),
       limit: Type.Optional(Type.Number({ default: 20 })),
     }),
-    async execute(_id: string, params: Record<string, unknown>) {
-      return toolResult(listContacts(databasePath, params as unknown as Parameters<typeof listContacts>[1]));
-    },
+    execute: wrapExecute("crm_list_contacts", (params: Parameters<typeof listContacts>[1]) => listContacts(databasePath, params)),
   });
 
   api.registerTool({
@@ -135,9 +147,7 @@ function registerCrmTools(api: OpenClawApi) {
         Type.String({ description: "YYYY-MM-DD — defaults to today" })
       ),
     }),
-    async execute(_id: string, params: Record<string, unknown>) {
-      return toolResult(logInteraction(databasePath, params as unknown as Parameters<typeof logInteraction>[1]));
-    },
+    execute: wrapExecute("crm_log_interaction", (params: Parameters<typeof logInteraction>[1]) => logInteraction(databasePath, params)),
   });
 
   api.registerTool({
@@ -147,9 +157,7 @@ function registerCrmTools(api: OpenClawApi) {
       industry: Type.Optional(Type.String()),
       company: Type.Optional(Type.String()),
     }),
-    async execute(_id: string, params: Record<string, unknown>) {
-      return toolResult(searchByIndustry(databasePath, params as unknown as Parameters<typeof searchByIndustry>[1]));
-    },
+    execute: wrapExecute("crm_search_by_industry", (params: Parameters<typeof searchByIndustry>[1]) => searchByIndustry(databasePath, params)),
   });
 
   api.registerTool({
@@ -159,9 +167,7 @@ function registerCrmTools(api: OpenClawApi) {
     parameters: Type.Object({
       days: Type.Optional(Type.Number({ default: 7 })),
     }),
-    async execute(_id: string, params: Record<string, unknown>) {
-      return toolResult(getUpcomingFollowups(databasePath, params as unknown as Parameters<typeof getUpcomingFollowups>[1]));
-    },
+    execute: wrapExecute("crm_get_upcoming_followups", (params: Parameters<typeof getUpcomingFollowups>[1]) => getUpcomingFollowups(databasePath, params)),
   });
 
   api.registerTool({
@@ -170,9 +176,7 @@ function registerCrmTools(api: OpenClawApi) {
     parameters: Type.Object({
       days: Type.Optional(Type.Number({ default: 14 })),
     }),
-    async execute(_id: string, params: Record<string, unknown>) {
-      return toolResult(getUpcomingBirthdays(databasePath, params as unknown as Parameters<typeof getUpcomingBirthdays>[1]));
-    },
+    execute: wrapExecute("crm_get_upcoming_birthdays", (params: Parameters<typeof getUpcomingBirthdays>[1]) => getUpcomingBirthdays(databasePath, params)),
   });
 
   api.registerTool({
@@ -185,9 +189,7 @@ function registerCrmTools(api: OpenClawApi) {
       column_type: Type.Optional(Type.String({ default: "TEXT" })),
       description: Type.Optional(Type.String()),
     }),
-    async execute(_id: string, params: Record<string, unknown>) {
-      return toolResult(addSchemaColumn(databasePath, params as unknown as Parameters<typeof addSchemaColumn>[1]));
-    },
+    execute: wrapExecute("crm_add_schema_column", (params: Parameters<typeof addSchemaColumn>[1]) => addSchemaColumn(databasePath, params)),
   });
 
   api.registerTool({
@@ -197,9 +199,7 @@ function registerCrmTools(api: OpenClawApi) {
       contact_id: Type.Number(),
       tag_name: Type.String(),
     }),
-    async execute(_id: string, params: Record<string, unknown>) {
-      return toolResult(addTag(databasePath, params as unknown as Parameters<typeof addTag>[1]));
-    },
+    execute: wrapExecute("crm_add_tag", (params: Parameters<typeof addTag>[1]) => addTag(databasePath, params)),
   });
 
   api.registerTool({
@@ -208,9 +208,7 @@ function registerCrmTools(api: OpenClawApi) {
     parameters: Type.Object({
       tag_name: Type.String(),
     }),
-    async execute(_id: string, params: Record<string, unknown>) {
-      return toolResult(findByTag(databasePath, params as unknown as Parameters<typeof findByTag>[1]));
-    },
+    execute: wrapExecute("crm_find_by_tag", (params: Parameters<typeof findByTag>[1]) => findByTag(databasePath, params)),
   });
 
   api.registerTool({
@@ -233,12 +231,19 @@ function registerCrmTools(api: OpenClawApi) {
       pr_body: Type.String({ description: "Markdown body for the PR description" }),
     }),
     async execute(_id: string, params: Record<string, unknown>) {
-      return toolResult(
-        proposeSelfImprovement(
+      console.log(`[familiar:bot_propose_change] invoked params=${JSON.stringify(params)}`);
+      try {
+        const result = proposeSelfImprovement(
           resolve(__dirname, ".."),
           params as unknown as Parameters<typeof proposeSelfImprovement>[1]
-        )
-      );
+        );
+        console.log(`[familiar:bot_propose_change] ok result=${JSON.stringify(result)}`);
+        return toolResult(result);
+      } catch (err) {
+        console.error(`[familiar:bot_propose_change] error message=${(err as Error).message}`);
+        console.error(`[familiar:bot_propose_change] stack=${(err as Error).stack}`);
+        throw err;
+      }
     },
   });
 
@@ -266,9 +271,7 @@ function registerCrmTools(api: OpenClawApi) {
       checkin_cadence_hours: Type.Optional(Type.Number({ default: 48 })),
       notes: Type.Optional(Type.String()),
     }),
-    async execute(_id: string, params: Record<string, unknown>) {
-      return toolResult(createProject(databasePath, params as unknown as Parameters<typeof createProject>[1]));
-    },
+    execute: wrapExecute("pm_create_project", (params: Parameters<typeof createProject>[1]) => createProject(databasePath, params)),
   });
 
   api.registerTool({
@@ -285,9 +288,7 @@ function registerCrmTools(api: OpenClawApi) {
       ),
       limit: Type.Optional(Type.Number({ default: 20 })),
     }),
-    async execute(_id: string, params: Record<string, unknown>) {
-      return toolResult(listProjects(databasePath, params as unknown as Parameters<typeof listProjects>[1]));
-    },
+    execute: wrapExecute("pm_list_projects", (params: Parameters<typeof listProjects>[1]) => listProjects(databasePath, params)),
   });
 
   api.registerTool({
@@ -315,9 +316,7 @@ function registerCrmTools(api: OpenClawApi) {
       due_date: Type.Optional(Type.String({ description: "YYYY-MM-DD" })),
       notes: Type.Optional(Type.String()),
     }),
-    async execute(_id: string, params: Record<string, unknown>) {
-      return toolResult(addTask(databasePath, params as unknown as Parameters<typeof addTask>[1]));
-    },
+    execute: wrapExecute("pm_add_task", (params: Parameters<typeof addTask>[1]) => addTask(databasePath, params)),
   });
 
   api.registerTool({
@@ -329,9 +328,7 @@ function registerCrmTools(api: OpenClawApi) {
         description: "Dict of field names to new values (status, priority, due_date, notes, title)",
       }),
     }),
-    async execute(_id: string, params: Record<string, unknown>) {
-      return toolResult(updateTask(databasePath, params as unknown as Parameters<typeof updateTask>[1]));
-    },
+    execute: wrapExecute("pm_update_task", (params: Parameters<typeof updateTask>[1]) => updateTask(databasePath, params)),
   });
 
   api.registerTool({
@@ -349,9 +346,7 @@ function registerCrmTools(api: OpenClawApi) {
       ),
       limit: Type.Optional(Type.Number({ default: 50 })),
     }),
-    async execute(_id: string, params: Record<string, unknown>) {
-      return toolResult(listTasks(databasePath, params as unknown as Parameters<typeof listTasks>[1]));
-    },
+    execute: wrapExecute("pm_list_tasks", (params: Parameters<typeof listTasks>[1]) => listTasks(databasePath, params)),
   });
 
   api.registerTool({
@@ -363,9 +358,7 @@ function registerCrmTools(api: OpenClawApi) {
       tags: Type.Optional(Type.String({ description: "Comma-separated tags, e.g. 'meeting,decision'" })),
       date: Type.Optional(Type.String({ description: "YYYY-MM-DD — defaults to today" })),
     }),
-    async execute(_id: string, params: Record<string, unknown>) {
-      return toolResult(logProjectEntry(databasePath, params as unknown as Parameters<typeof logProjectEntry>[1]));
-    },
+    execute: wrapExecute("pm_log_entry", (params: Parameters<typeof logProjectEntry>[1]) => logProjectEntry(databasePath, params)),
   });
 
   api.registerTool({
@@ -375,9 +368,7 @@ function registerCrmTools(api: OpenClawApi) {
       project_id: Type.Number({ description: "Project ID" }),
       log_limit: Type.Optional(Type.Number({ default: 10, description: "Max recent log entries to return" })),
     }),
-    async execute(_id: string, params: Record<string, unknown>) {
-      return toolResult(getProjectSummary(databasePath, params as unknown as Parameters<typeof getProjectSummary>[1]));
-    },
+    execute: wrapExecute("pm_get_project_summary", (params: Parameters<typeof getProjectSummary>[1]) => getProjectSummary(databasePath, params)),
   });
 }
 
