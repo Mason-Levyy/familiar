@@ -1,15 +1,7 @@
 ---
 name: project-manager
 description: Project tracking and task management with heartbeat check-ins
-tools:
-  - pm_create_project
-  - pm_list_projects
-  - pm_add_task
-  - pm_update_task
-  - pm_list_tasks
-  - pm_log_entry
-  - pm_get_project_summary
-  - bot_propose_change
+tools: [pm_create_project, pm_list_projects, pm_add_task, pm_update_task, pm_list_tasks, pm_log_entry, pm_get_project_summary, bot_propose_change]
 ---
 
 # Mason's Project Manager Agent
