@@ -1,8 +1,8 @@
-import { openDatabase, followupDate } from "../db";
+import { openDatabase, followupDate, type Tier } from "../db";
 
 interface AddContactParams {
   name: string;
-  tier: string;
+  tier: Tier;
   email?: string;
   phone?: string;
   location?: string;

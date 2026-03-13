@@ -5,8 +5,8 @@
 <h1 align="center">Familiar</h1>
 
 <p align="center">
-  <strong>An agentic personal CRM and project tracker that lives in Discord.</strong><br />
-  No forms. No dashboards. Just chat.
+  A personal CRM and project tracker that lives in Discord.<br />
+  You just talk to it.
 </p>
 
 <p align="center">
@@ -19,55 +19,49 @@
 
 ---
 
-## How It Works
+## How it works
 
-Familiar runs as an [OpenClaw](https://openclaw.ai/) plugin. You DM a Discord bot, OpenClaw routes the message to Claude, Claude calls Familiar's tools against a local SQLite database, and the response flows back to Discord.
+Familiar is an [OpenClaw](https://openclaw.ai/) plugin. You DM a Discord bot, OpenClaw hands the message to Claude, Claude calls Familiar's tools against a local SQLite database, and the answer comes back to Discord.
 
-```
-┌──────────┐      ┌──────────────┐      ┌───────────┐      ┌──────────┐
-│ Discord  │ ───▸ │   OpenClaw   │ ───▸ │  Claude   │ ───▸ │ Familiar │
-│   DM     │ ◂─── │   Gateway    │ ◂─── │  (LLM)    │ ◂─── │  Plugin  │
-└──────────┘      └──────────────┘      └───────────┘      └────┬─────┘
-                                                                 │
-                                                           ┌─────▾─────┐
-                                                           │  SQLite   │
-                                                           │  (local)  │
-                                                           └───────────┘
+```mermaid
+flowchart LR
+    A[Discord DM] <--> B[OpenClaw Gateway] <--> C[Claude LLM] <--> D[Familiar Plugin]
+    D --> E[(SQLite local)]
 ```
 
-1. **You send a message** in Discord — plain English, no slash commands
-2. **OpenClaw** receives it and forwards to Claude with the active skill prompt
-3. **Claude reads your intent** and calls one or more Familiar tools (e.g. add a contact, log an interaction, check follow-ups)
-4. **Familiar executes** against your local SQLite database and returns structured results
-5. **Claude synthesizes** the results into a natural response and sends it back through Discord
+1. You send a message in Discord, plain English
+2. OpenClaw receives it and forwards to Claude with the active skill prompt
+3. Claude reads your intent and calls one or more Familiar tools (add a contact, log an interaction, check follow-ups, etc.)
+4. Familiar runs the query against your local SQLite database and returns structured results
+5. Claude turns the results into a normal response and sends it back through Discord
 
-Everything stays on your machine. No cloud database, no subscriptions, no data leaving your box.
+Everything stays on your machine. No cloud database, no data leaving your box.
 
 ---
 
 ## Skills
 
-Familiar ships with two skills — system prompts that tell Claude how to behave and which tools to use.
+Familiar ships with two skills, which are system prompts that tell Claude how to behave and which tools to use.
 
-### CRM Skill
+### CRM skill
 
 Manages your personal network across three relationship tiers.
 
-| Tool | What It Does |
+| Tool | What it does |
 |------|-------------|
 | `crm_add_contact` | Add a contact with name, tier, company, birthday, and any other details |
 | `crm_update_contact` | Update any field on an existing contact |
-| `crm_find_contact` | Search by name, company, or notes — returns top 5 with recent interactions |
+| `crm_find_contact` | Search by name, company, or notes. Returns top 5 with recent interactions |
 | `crm_list_contacts` | List all contacts, optionally filtered by tier (vip / acquaintance / broader) |
-| `crm_log_interaction` | Log a touchpoint (text, email, call, coffee, linkedin, event, other) — resets follow-up timer |
+| `crm_log_interaction` | Log a touchpoint (text, email, call, coffee, linkedin, event, other). Resets the follow-up timer |
 | `crm_search_by_industry` | Find contacts by industry or company |
-| `crm_get_upcoming_followups` | Surface contacts due for a check-in within N days |
-| `crm_get_upcoming_birthdays` | Surface contacts with birthdays in the next N days |
-| `crm_add_schema_column` | Dynamically add a new column to the database at runtime |
+| `crm_get_upcoming_followups` | Show contacts due for a check-in within N days |
+| `crm_get_upcoming_birthdays` | Show contacts with birthdays in the next N days |
+| `crm_add_schema_column` | Add a new column to the database at runtime |
 | `crm_add_tag` | Tag a contact with a label |
 | `crm_find_by_tag` | Find all contacts with a given tag |
 
-**Follow-up cadence** auto-calculates based on relationship tier:
+Follow-up cadence is automatic based on tier:
 
 | Tier | Cadence |
 |------|---------|
@@ -75,27 +69,27 @@ Manages your personal network across three relationship tiers.
 | `acquaintance` | Every 6 weeks |
 | `broader` | Every 3 months |
 
-**Self-evolving schema** — mention "his dog's name is Rex" and the agent creates a `dog_name` column and stores the value. No config, no restarts. The `schema_meta` table tracks every dynamic column.
+The schema grows with you. Mention "his dog's name is Rex" and the agent creates a `dog_name` column and stores the value. No config changes, no restarts. The `schema_meta` table tracks every column that gets added this way.
 
-### Project Manager Skill
+### Project manager skill
 
-Tracks projects, tasks, progress logs, and deadlines with 24-hour heartbeat check-ins.
+Tracks projects, tasks, progress logs, and deadlines with 48-hour heartbeat check-ins.
 
-| Tool | What It Does |
+| Tool | What it does |
 |------|-------------|
 | `pm_create_project` | Create a project with name, slug, goal, role, org, and dates |
 | `pm_list_projects` | List projects, optionally filtered by status (active / paused / completed / archived) |
-| `pm_add_task` | Add a task with title, priority (low → urgent), due date, and notes |
-| `pm_update_task` | Update task fields — setting status to `done` auto-fills `completed_at` |
+| `pm_add_task` | Add a task with title, priority (low through urgent), due date, and notes |
+| `pm_update_task` | Update task fields. Setting status to `done` auto-fills `completed_at` |
 | `pm_list_tasks` | List tasks for a project, ordered by priority (urgent first) |
 | `pm_log_entry` | Log a dated entry with summary and tags (#meeting, #decision, #blocker, etc.) |
-| `pm_get_project_summary` | Full summary: open/overdue/completed task counts, recent log entries |
+| `pm_get_project_summary` | Full summary: open/overdue/completed task counts and recent log entries |
 
-### Shared Tool
+### Shared tool
 
-| Tool | What It Does |
+| Tool | What it does |
 |------|-------------|
-| `bot_propose_change` | The agent can improve its own codebase — creates a branch, writes files, commits, pushes, and opens a PR for review |
+| `bot_propose_change` | The agent can propose changes to its own codebase. Creates a branch, writes files, commits, pushes, and opens a PR for review |
 
 ---
 
@@ -103,11 +97,11 @@ Tracks projects, tasks, progress logs, and deadlines with 24-hour heartbeat chec
 
 Eight tables across two domains, all append-only:
 
-**CRM:** `contacts` · `interactions` · `tags` · `contact_tags` · `schema_meta`
+**CRM:** `contacts`, `interactions`, `tags`, `contact_tags`, `schema_meta`
 
-**Projects:** `projects` · `tasks` · `project_logs`
+**Projects:** `projects`, `tasks`, `project_logs`
 
-Data is never deleted. Contacts go to `broader` tier. Projects get `archived`. Wrong info gets updated, not removed.
+Nothing gets deleted. Contacts you don't need move to the `broader` tier. Old projects get `archived`. If something is wrong, it gets updated, not removed.
 
 ---
 
@@ -120,7 +114,7 @@ Data is never deleted. Contacts go to `broader` tier. Projects get `archived`. W
   ```bash
   curl -fsSL https://openclaw.ai/install.sh | bash
   ```
-- A Discord bot token — [Discord Developer Portal](https://discord.com/developers/applications)
+- A Discord bot token from the [Discord Developer Portal](https://discord.com/developers/applications)
 - An Anthropic API key (configured during `openclaw onboard`)
 
 ### Install
@@ -132,7 +126,7 @@ npm install
 npm run build
 ```
 
-### Initialize the Database
+### Initialize the database
 
 ```bash
 npm run db:init
@@ -158,7 +152,7 @@ openclaw config set channels.discord.enabled true --json
 openclaw config set channels.discord.token '"YOUR_BOT_TOKEN"' --json
 ```
 
-### Lock Down Access
+### Lock down access
 
 Edit `~/.openclaw/config.json5` to restrict Familiar to your Discord account:
 
@@ -199,8 +193,9 @@ crontab -e
 
 ## Security
 
-- **Single-user** — Discord allowlist restricts access to one account
-- **Append-only** — No delete operations; data is always recoverable
-- **Local-only** — SQLite on your machine, no cloud
-- **Secrets stay out of git** — `.env` gitignored; credentials in OpenClaw config
-- Run `openclaw doctor` to diagnose configuration issues
+- **Single-user.** Discord allowlist restricts access to one account.
+- **Append-only.** No delete operations. Data is always recoverable.
+- **Local-only.** SQLite on your machine, nothing in the cloud.
+- **Secrets stay out of git.** `.env` is gitignored; credentials live in OpenClaw config.
+
+Run `openclaw doctor` to diagnose configuration issues.

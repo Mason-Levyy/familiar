@@ -230,21 +230,9 @@ function registerCrmTools(api: OpenClawApi) {
       pr_title: Type.String(),
       pr_body: Type.String({ description: "Markdown body for the PR description" }),
     }),
-    async execute(_id: string, params: Record<string, unknown>) {
-      console.log(`[familiar:bot_propose_change] invoked params=${JSON.stringify(params)}`);
-      try {
-        const result = proposeSelfImprovement(
-          resolve(__dirname, ".."),
-          params as unknown as Parameters<typeof proposeSelfImprovement>[1]
-        );
-        console.log(`[familiar:bot_propose_change] ok result=${JSON.stringify(result)}`);
-        return toolResult(result);
-      } catch (err) {
-        console.error(`[familiar:bot_propose_change] error message=${(err as Error).message}`);
-        console.error(`[familiar:bot_propose_change] stack=${(err as Error).stack}`);
-        throw err;
-      }
-    },
+    execute: wrapExecute("bot_propose_change", (params: Parameters<typeof proposeSelfImprovement>[1]) =>
+      proposeSelfImprovement(resolve(__dirname, ".."), params) as Record<string, unknown>
+    ),
   });
 
   // ── Project Management Tools ──────────────────────────────

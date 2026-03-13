@@ -1,4 +1,4 @@
-import { openDatabase, todayIso } from "../db";
+import { openDatabase } from "../db";
 
 interface UpdateTaskParams {
   id: number;
@@ -18,7 +18,7 @@ export function updateTask(databasePath: string, params: UpdateTaskParams) {
       entries.push(["completed_at", new Date().toISOString()]);
     }
 
-    const setClauses = entries.map(([key]) => `${key} = ?`).join(", ");
+    const setClauses = entries.map(([key]) => `"${key.replace(/"/g, '""')}" = ?`).join(", ");
     const values = entries.map(([, value]) => value as string | number | null);
 
     database.prepare(

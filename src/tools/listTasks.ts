@@ -1,8 +1,8 @@
-import { openDatabase } from "../db";
+import { openDatabase, type TaskStatus } from "../db";
 
 interface ListTasksParams {
   project_id: number;
-  status?: string;
+  status?: TaskStatus;
   limit?: number;
 }
 
@@ -18,7 +18,11 @@ export function listTasks(databasePath: string, params: ListTasksParams) {
       args.push(params.status);
     }
 
-    query += " ORDER BY CASE priority WHEN 'urgent' THEN 0 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 END, created_at DESC LIMIT ?";
+    query += [
+      " ORDER BY",
+      " CASE priority WHEN 'urgent' THEN 0 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 END,",
+      " created_at DESC LIMIT ?",
+    ].join("");
     args.push(limit);
 
     const rows = database.prepare(query).all(...args);

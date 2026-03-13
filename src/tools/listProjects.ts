@@ -1,7 +1,7 @@
-import { openDatabase } from "../db";
+import { openDatabase, type ProjectStatus } from "../db";
 
 interface ListProjectsParams {
-  status?: string;
+  status?: ProjectStatus;
   limit?: number;
 }
 

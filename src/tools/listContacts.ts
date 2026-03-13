@@ -1,7 +1,7 @@
-import { openDatabase } from "../db";
+import { openDatabase, type Tier } from "../db";
 
 interface ListContactsParams {
-  tier?: string;
+  tier?: Tier;
   limit?: number;
 }
 
