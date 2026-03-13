@@ -17,9 +17,13 @@ export function getProjectSummary(databasePath: string, params: GetProjectSummar
       return { success: false, error: `Project ${params.project_id} not found` };
     }
 
-    const openTasks = database.prepare(
-      "SELECT * FROM tasks WHERE project_id = ? AND status IN ('todo', 'in_progress', 'blocked') ORDER BY CASE priority WHEN 'urgent' THEN 0 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 END"
-    ).all(params.project_id);
+    const openTasks = database.prepare(`
+      SELECT * FROM tasks
+      WHERE project_id = ? AND status IN ('todo', 'in_progress', 'blocked')
+      ORDER BY CASE priority
+        WHEN 'urgent' THEN 0 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3
+      END
+    `).all(params.project_id);
 
     const completedCount = database.prepare(
       "SELECT COUNT(*) as count FROM tasks WHERE project_id = ? AND status = 'done'"

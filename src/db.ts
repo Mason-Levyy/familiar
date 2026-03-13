@@ -1,6 +1,12 @@
 import { DatabaseSync } from "node:sqlite";
 
-const FOLLOWUP_DAYS: Record<string, number> = {
+export type Tier = "vip" | "acquaintance" | "broader";
+export type InteractionType = "text" | "email" | "call" | "coffee" | "linkedin" | "event" | "other";
+export type ProjectStatus = "active" | "paused" | "completed" | "archived";
+export type TaskStatus = "todo" | "in_progress" | "done" | "blocked";
+export type TaskPriority = "low" | "medium" | "high" | "urgent";
+
+const FOLLOWUP_DAYS: Record<Tier, number> = {
   vip: 21,
   acquaintance: 42,
   broader: 90,

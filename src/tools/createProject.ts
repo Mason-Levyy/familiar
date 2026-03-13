@@ -1,9 +1,9 @@
-import { openDatabase, todayIso } from "../db";
+import { openDatabase, todayIso, type ProjectStatus } from "../db";
 
 interface CreateProjectParams {
   name: string;
   slug: string;
-  status?: string;
+  status?: ProjectStatus;
   goal?: string;
   role?: string;
   organization?: string;

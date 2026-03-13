@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { writeFileSync, mkdirSync } from "node:fs";
-import { resolve, dirname } from "node:path";
+import { resolve, relative, isAbsolute, dirname } from "node:path";
 
 const PROTECTED_BRANCHES = new Set(["main", "master"]);
 
@@ -35,10 +35,10 @@ export function proposeSelfImprovement(
     return { ok: false, error: "Invalid branch name." };
   }
 
-  // Validate all paths are within the repo root
   for (const change of changes) {
     const abs = resolve(repoRoot, change.path);
-    if (!abs.startsWith(repoRoot + "/") && abs !== repoRoot) {
+    const rel = relative(repoRoot, abs);
+    if (rel.startsWith("..") || isAbsolute(rel)) {
       return { ok: false, error: `Path "${change.path}" escapes the repository root.` };
     }
   }
@@ -51,27 +51,19 @@ export function proposeSelfImprovement(
   }
 
   try {
-    // Create and switch to new branch
     git(repoRoot, ["checkout", "-b", branch]);
 
-    // Write files
     for (const change of changes) {
       const abs = resolve(repoRoot, change.path);
       mkdirSync(dirname(abs), { recursive: true });
       writeFileSync(abs, change.content, "utf8");
     }
 
-    // Stage the changed files
     const filePaths = changes.map((c) => resolve(repoRoot, c.path));
     git(repoRoot, ["add", "--", ...filePaths]);
-
-    // Commit
     git(repoRoot, ["commit", "-m", commit_message]);
-
-    // Push (no --force, ever)
     git(repoRoot, ["push", "origin", branch]);
 
-    // Create PR
     const prOutput = execFileSync(
       "gh",
       ["pr", "create", "--title", pr_title, "--body", pr_body, "--head", branch, "--base", "main"],
@@ -80,7 +72,6 @@ export function proposeSelfImprovement(
 
     const pr_url = prOutput.trim().split("\n").pop() ?? prOutput.trim();
 
-    // Return to original branch
     git(repoRoot, ["checkout", originalBranch]);
 
     return { ok: true, pr_url };

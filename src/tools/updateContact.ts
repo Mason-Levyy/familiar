@@ -13,7 +13,7 @@ export function updateContact(databasePath: string, params: UpdateContactParams)
   }
 
   const columns = Object.keys(params.fields);
-  const setClause = columns.map((column) => `${column} = ?`).join(", ");
+  const setClause = columns.map((column) => `"${column.replace(/"/g, '""')}" = ?`).join(", ");
   const values = [
     ...columns.map((column) => params.fields[column] as SQLInputValue),
     params.id,

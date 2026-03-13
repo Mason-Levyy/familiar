@@ -1,8 +1,8 @@
-import { openDatabase, todayIso, followupDate } from "../db";
+import { openDatabase, todayIso, followupDate, type Tier, type InteractionType } from "../db";
 
 interface LogInteractionParams {
   contact_id: number;
-  type: string;
+  type: InteractionType;
   summary: string;
   date?: string;
 }
@@ -17,7 +17,7 @@ export function logInteraction(databasePath: string, params: LogInteractionParam
 
     const row = database.prepare(
       "SELECT tier FROM contacts WHERE id = ?"
-    ).get(params.contact_id) as { tier: string } | undefined;
+    ).get(params.contact_id) as { tier: Tier } | undefined;
 
     const tier = row?.tier ?? "broader";
     const nextFollowup = followupDate(tier);

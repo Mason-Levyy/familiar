@@ -1,10 +1,10 @@
-import { openDatabase, todayIso } from "../db";
+import { openDatabase, type TaskStatus, type TaskPriority } from "../db";
 
 interface AddTaskParams {
   project_id: number;
   title: string;
-  status?: string;
-  priority?: string;
+  status?: TaskStatus;
+  priority?: TaskPriority;
   due_date?: string;
   notes?: string;
 }
